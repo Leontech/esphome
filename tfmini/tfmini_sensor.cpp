@@ -31,13 +31,27 @@ void TFminiSensor::update() {
   }
 }
 
-// Tato část registruje platformu "tfmini_sensor" do ESPHome
-static Sensor *tfmini_sensor_factory(UARTComponent *parent) {
+// Factory funkce pro vytvoření instance senzoru
+sensor::Sensor *create_tfmini_sensor(UARTComponent *parent) {
   return new TFminiSensor(parent);
 }
 
-static bool registered = []() {
-  esphome::sensor::SensorFactory::get_instance().register_factory("tfmini_sensor", (esphome::sensor::SensorFactory::FactoryFunc)tfmini_sensor_factory);
+// Funkce, která registruje platformu "tfmini_sensor" do ESPHome
+void register_tfmini_sensor() {
+  static bool registered = false;
+  if (!registered) {
+    sensor::SensorFactory::get_instance().register_factory(
+      "tfmini_sensor",
+      [](const sensor::SensorFactory::PlatformContext &context) -> sensor::Sensor* {
+        return new TFminiSensor(context.get_uart());
+      });
+    registered = true;
+  }
+}
+
+// Automatické zavolání registrace při spuštění
+const bool tfmini_sensor_registered = []() {
+  register_tfmini_sensor();
   return true;
 }();
 
