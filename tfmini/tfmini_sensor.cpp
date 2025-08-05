@@ -1,7 +1,11 @@
 #include "tfmini_sensor.h"
+#include "esphome/core/log.h"
+#include "esphome/components/sensor/sensor.h"
 
 namespace esphome {
 namespace tfmini_sensor {
+
+static const char *TAG = "tfmini_sensor";
 
 void TFminiSensor::update() {
   int uart_value[9];
@@ -21,16 +25,21 @@ void TFminiSensor::update() {
 
       if (uart_value[8] == (check & 0xff)) {
         distance = uart_value[2] + uart_value[3] * 256;
-        // int strength = uart_value[4] + uart_value[5] * 256;
-        // float temprature = uart_value[6] + uart_value[7] * 256;
-        // temprature = temprature / 8 - 256;
-
-        // Převod na metry nebo centimetry podle potřeby
         publish_state(distance);  // v cm
       }
     }
   }
 }
+
+// Tato část registruje platformu "tfmini_sensor" do ESPHome
+static Sensor *tfmini_sensor_factory(UARTComponent *parent) {
+  return new TFminiSensor(parent);
+}
+
+static bool registered = []() {
+  esphome::sensor::SensorFactory::get_instance().register_factory("tfmini_sensor", (esphome::sensor::SensorFactory::FactoryFunc)tfmini_sensor_factory);
+  return true;
+}();
 
 }  // namespace tfmini_sensor
 }  // namespace esphome
