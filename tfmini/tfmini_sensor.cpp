@@ -1,6 +1,5 @@
 #include "tfmini_sensor.h"
 #include "esphome/core/log.h"
-#include "esphome/components/sensor/sensor.h"
 
 namespace esphome {
 namespace tfmini_sensor {
@@ -31,29 +30,6 @@ void TFminiSensor::update() {
   }
 }
 
-// Factory funkce pro vytvoření instance senzoru
-sensor::Sensor *create_tfmini_sensor(UARTComponent *parent) {
-  return new TFminiSensor(parent);
-}
-
-// Funkce, která registruje platformu "tfmini_sensor" do ESPHome
-void register_tfmini_sensor() {
-  static bool registered = false;
-  if (!registered) {
-    sensor::SensorFactory::get_instance().register_factory(
-      "tfmini_sensor",
-      [](const sensor::SensorFactory::PlatformContext &context) -> sensor::Sensor* {
-        return new TFminiSensor(context.get_uart());
-      });
-    registered = true;
-  }
-}
-
-// Automatické zavolání registrace při spuštění
-const bool tfmini_sensor_registered = []() {
-  register_tfmini_sensor();
-  return true;
-}();
-
 }  // namespace tfmini_sensor
 }  // namespace esphome
+
