@@ -1,0 +1,10 @@
+{
+  "domain": "tfmini_sensor",
+  "name": "TFmini Sensor",
+  "version": "1.0.0",
+  "requirements": [],
+  "esphome_version": ">=2025.7.0",
+  "dependencies": [],
+  "codeowners": ["@Leontech"],
+  "platforms": ["sensor"]
+}
