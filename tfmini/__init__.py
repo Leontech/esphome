@@ -1,10 +1,10 @@
 """TFmini sensor external component."""
 from esphome.components import sensor
 from esphome.const import CONF_UART_ID
+import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.core import CORE, coroutine_with_priority
-from esphome.cpp_generator import Pvariable, add, get_variable
-from esphome.cpp_types import App, Component, UARTDevice, sensor as sensor_ns
+from esphome.cpp_generator import Pvariable
+from esphome.cpp_types import App, sensor as sensor_ns, UARTDevice
 
 # Definice C++ třídy senzoru
 TFminiSensor = sensor_ns.class_(
