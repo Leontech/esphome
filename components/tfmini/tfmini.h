@@ -12,7 +12,7 @@ enum DistanceUnit {
   METERS
 };
 
-class TFMiniSensor : public sensor::Sensor, public Component, public uart::UARTDevice {
+class TFMiniSensor : public sensor::Sensor, public PollingComponent, public uart::UARTDevice {
  public:
   void setup() override;
   void loop() override;
