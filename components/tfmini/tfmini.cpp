@@ -9,7 +9,8 @@ static const char *const TAG = "tfmini";
 static const uint8_t HEADER = 0x59;  // frame header of data package
 
 // Konstruktor nastavuje interval aktualizace na 1000 ms (60 sekunda)
-TFMiniSensor::TFMiniSensor(uart::UARTComponent *parent) : PollingComponent(60000), UARTDevice(parent) {}
+TFMiniSensor::TFMiniSensor(uart::UARTComponent *parent)
+    : PollingComponent(60000), uart::UARTDevice(parent) {}
 
 void TFMiniSensor::setup() {
   this->set_timeout(50, [this]() { this->setup_internal_(); });
