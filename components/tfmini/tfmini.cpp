@@ -1,5 +1,6 @@
 #include "tfmini.h"
 #include "esphome/core/log.h"
+#include "esphome/components/uart/uart.h"
 
 namespace esphome {
 namespace tfmini {
