@@ -14,7 +14,7 @@ enum DistanceUnit {
 
 class TFMiniSensor : public sensor::Sensor, public PollingComponent, public uart::UARTDevice {
  public:
-  TFMiniSensor(UARTComponent *parent);
+  TFMiniSensor(uart::UARTComponent *parent);
 
   void setup() override;
   void update() override;
