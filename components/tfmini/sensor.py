@@ -14,30 +14,22 @@ from esphome.const import (
     ICON_RULER,
     ENTITY_CATEGORY_DIAGNOSTIC,
 )
-
 DEPENDENCIES = ["uart"]
-
 tfmini_ns = cg.esphome_ns.namespace("tfmini")
-
-# DŮLEŽITÉ: PollingComponent (ne cg.Component) a UARTDevice
 TFMiniSensor = tfmini_ns.class_(
     "TFMiniSensor",
     sensor.Sensor,
     cg.PollingComponent,
     uart.UARTDevice,
 )
-
 CONF_STRENGTH = "strength"
 CONF_TEMPERATURE = "temperature"
 CONF_DISTANCE_UNIT = "distance_unit"
-
-# map string -> C++ enum
 DistanceUnit = tfmini_ns.enum("DistanceUnit")
 DISTANCE_UNITS = {
     "cm": DistanceUnit.CENTIMETERS,
     "m": DistanceUnit.METERS,
 }
-
 CONFIG_SCHEMA = (
     sensor.sensor_schema(
         TFMiniSensor,
@@ -51,11 +43,9 @@ CONFIG_SCHEMA = (
         {
             cv.GenerateID(): cv.declare_id(TFMiniSensor),
             cv.Required(CONF_UART_ID): cv.use_id(uart.UARTComponent),
-
             cv.Optional(CONF_DISTANCE_UNIT, default="cm"): cv.enum(
                 DISTANCE_UNITS, lower=True
             ),
-
             cv.Optional(CONF_STRENGTH): sensor.sensor_schema(
                 unit_of_measurement="",
                 accuracy_decimals=0,
@@ -75,30 +65,16 @@ CONFIG_SCHEMA = (
     .extend(uart.UART_DEVICE_SCHEMA)
     .extend(cv.polling_component_schema("60s"))
 )
-
 async def to_code(config):
     uart_comp = await cg.get_variable(config[CONF_UART_ID])
-
-    # TADY je fix #1: vytvořit objekt přes konstruktor s UART parentem
     var = cg.new_Pvariable(config[CONF_ID], uart_comp)
-
     await cg.register_component(var, config)
     await sensor.register_sensor(var, config)
     await uart.register_uart_device(var, config)
-
-    # fix #2: už je to C++ enum, ne string
     cg.add(var.set_distance_unit(config[CONF_DISTANCE_UNIT]))
-
-    # jen UI metadatově (ne nutné)
-    if config[CONF_DISTANCE_UNIT] == DISTANCE_UNITS["m"]:
-        cg.add(var.set_unit_of_measurement(UNIT_METER))
-        cg.add(var.set_accuracy_decimals(2))
-
     if CONF_STRENGTH in config:
         sens = await sensor.new_sensor(config[CONF_STRENGTH])
         cg.add(var.set_strength_sensor(sens))
-
     if CONF_TEMPERATURE in config:
         sens = await sensor.new_sensor(config[CONF_TEMPERATURE])
         cg.add(var.set_temperature_sensor(sens))
-
