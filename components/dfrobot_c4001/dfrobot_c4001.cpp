@@ -368,12 +368,11 @@ void DFRobotC4001Hub::config_load() {
     if (this->threshold_factor_number_ != nullptr)
       this->enqueue(CommandType::COMMAND_TYPE_GET_THR_FACTOR);
 #endif
-  }
 #ifdef USE_SWITCH
-  // fork: micro motion is read in both modes
-  if (this->micro_motion_enable_switch_ != nullptr)
-    this->enqueue(CommandType::COMMAND_TYPE_GET_MICRO_MOTION);
+    if (this->micro_motion_enable_switch_ != nullptr)
+      this->enqueue(CommandType::COMMAND_TYPE_GET_MICRO_MOTION);
 #endif
+  }
   this->set_needs_save(false);
 }
 
@@ -405,12 +404,11 @@ void DFRobotC4001Hub::config_save() {
       if (this->threshold_factor_number_ != nullptr)
         this->enqueue(CommandType::COMMAND_TYPE_SET_THR_FACTOR, this->threshold_factor_);
 #endif
-    }
 #ifdef USE_SWITCH
-    // fork: micro motion is written in both modes
-    if (this->micro_motion_enable_switch_ != nullptr)
-      this->enqueue_flag(CommandType::COMMAND_TYPE_SET_MICRO_MOTION, this->micro_motion_enable_);
+      if (this->micro_motion_enable_switch_ != nullptr)
+        this->enqueue_flag(CommandType::COMMAND_TYPE_SET_MICRO_MOTION, this->micro_motion_enable_);
 #endif
+    }
     this->enqueue(CommandType::COMMAND_TYPE_SAVE_CFG);
     this->enqueue_flag(CommandType::COMMAND_TYPE_RESET_SYSTEM, true);
     this->enqueue_flag(CommandType::COMMAND_TYPE_POWER, true);
