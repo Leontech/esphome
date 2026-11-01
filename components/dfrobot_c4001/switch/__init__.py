@@ -58,9 +58,12 @@ def _final_validate(config):
     hub_path = full_config.get_path_for_id(config[CONF_DFROBOT_C4001_ID])[:-1]
     hub_conf = full_config.get_config_for_path(hub_path)
     mode = hub_conf.get(CONF_MODE)
-    if mode == "PRESENCE" and CONF_MICRO_MOTION_ENABLE in config:
+    # micro_motion_enable is allowed in both modes (fork: upstream forbids it in PRESENCE)
+    # the module answers "Error" to setGpioMode/getGpioMode outside of PRESENCE mode
+    if mode != "PRESENCE" and CONF_OUT_LED_ENABLE in config:
         raise cv.Invalid(
-            f"When 'mode' is set to {mode}, {CONF_MICRO_MOTION_ENABLE} switch is not allowed."
+            f"When 'mode' is set to {mode}, {CONF_OUT_LED_ENABLE} switch is not allowed "
+            "(the module rejects the GpioMode command in this mode)."
         )
 
 

@@ -344,7 +344,10 @@ void DFRobotC4001Hub::config_load() {
   this->enqueue(CommandType::COMMAND_TYPE_GET_SWV);
   // the module doesn't remember the RUN led state (controlled by LedMode command) so loading from module won't work
   // the OUT led state is controlled by GpioMode command and it is remembered by the module so loading does work
-  this->enqueue(CommandType::COMMAND_TYPE_GET_GPIO_MODE);
+  // fork: the module answers "Error" to GpioMode commands in SPEED_AND_DISTANCE mode, so only ask in PRESENCE mode
+  if (this->mode_ == MODE_PRESENCE) {
+    this->enqueue(CommandType::COMMAND_TYPE_GET_GPIO_MODE);
+  }
 #ifdef USE_NUMBER
   if (this->min_range_number_ != nullptr)
     this->enqueue(CommandType::COMMAND_TYPE_GET_RANGE);
@@ -365,11 +368,12 @@ void DFRobotC4001Hub::config_load() {
     if (this->threshold_factor_number_ != nullptr)
       this->enqueue(CommandType::COMMAND_TYPE_GET_THR_FACTOR);
 #endif
-#ifdef USE_SWITCH
-    if (this->micro_motion_enable_switch_ != nullptr)
-      this->enqueue(CommandType::COMMAND_TYPE_GET_MICRO_MOTION);
-#endif
   }
+#ifdef USE_SWITCH
+  // fork: micro motion is read in both modes
+  if (this->micro_motion_enable_switch_ != nullptr)
+    this->enqueue(CommandType::COMMAND_TYPE_GET_MICRO_MOTION);
+#endif
   this->set_needs_save(false);
 }
 
@@ -378,7 +382,9 @@ void DFRobotC4001Hub::config_save() {
     this->flash_run_led_enable();
     this->enqueue_flag(CommandType::COMMAND_TYPE_POWER, false);
     this->enqueue_flag(CommandType::COMMAND_TYPE_SET_LED_MODE, this->run_led_enable_);
-    this->enqueue_flag(CommandType::COMMAND_TYPE_SET_GPIO_MODE, this->out_led_enable_);
+    if (this->mode_ == MODE_PRESENCE) {  // fork: module rejects GpioMode in SPEED_AND_DISTANCE
+      this->enqueue_flag(CommandType::COMMAND_TYPE_SET_GPIO_MODE, this->out_led_enable_);
+    }
 #ifdef USE_NUMBER
     if (this->min_range_number_ != nullptr)
       this->enqueue(CommandType::COMMAND_TYPE_SET_RANGE, this->min_range_, this->max_range_);
@@ -399,11 +405,12 @@ void DFRobotC4001Hub::config_save() {
       if (this->threshold_factor_number_ != nullptr)
         this->enqueue(CommandType::COMMAND_TYPE_SET_THR_FACTOR, this->threshold_factor_);
 #endif
-#ifdef USE_SWITCH
-      if (this->micro_motion_enable_switch_ != nullptr)
-        this->enqueue_flag(CommandType::COMMAND_TYPE_SET_MICRO_MOTION, this->micro_motion_enable_);
-#endif
     }
+#ifdef USE_SWITCH
+    // fork: micro motion is written in both modes
+    if (this->micro_motion_enable_switch_ != nullptr)
+      this->enqueue_flag(CommandType::COMMAND_TYPE_SET_MICRO_MOTION, this->micro_motion_enable_);
+#endif
     this->enqueue(CommandType::COMMAND_TYPE_SAVE_CFG);
     this->enqueue_flag(CommandType::COMMAND_TYPE_RESET_SYSTEM, true);
     this->enqueue_flag(CommandType::COMMAND_TYPE_POWER, true);
